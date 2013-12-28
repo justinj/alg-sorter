@@ -78,14 +78,17 @@
 (def move? (comp not rotation?))
 
 ; there must be a builtin for this?
-(defn index-of [pred l]
+(defn- index-of [pred l]
   (count (take-while (comp not pred) l)))
 
-(defn last-partition [pred l]
+(defn last-partition 
+  "Split the seq into two halves, at the last point which satisfies pred"
+  [pred l]
   (let [idx (dec (- (count l) (index-of pred (reverse l))))]
       [(take idx l) (drop idx l)]))
 
 (defn- derotate-one [move-seq]
+  "Eliminate the last rotation in move-seq"
   (if (not-any? rotation? move-seq)
     move-seq
     (let [[start end] (last-partition rotation? move-seq)]
@@ -93,15 +96,20 @@
               (apply-rotation end)))))
 
 (defn- fixed-point [f v]
-  (let [result (f v)] (if (= result v) v (fixed-point f result))))
+  "Repeatedly apply f to v until it has no effect"
+  (let [result (f v)] (if (= result v) v (recur f result))))
 
 (defn derotate [move-seq]
   (fixed-point derotate-one move-seq))
 
 (defn rerotate [alg]
   (let [rotation (case (first alg)
+                   "U" ["z" "z" "z"]
+                   "D" ["z"]
                    "L" ["y" "y"]
-                   "R" [])]
+                   "R" []
+                   "F" ["y"]
+                   "B" ["y" "y" "y"])]
     (derotate (concat rotation alg))))
 
 (defn canonicalize [alg]
@@ -110,3 +118,28 @@
         expand
         derotate
         rerotate)))
+
+(defn distinct-by
+  "Return the first of each equivalence class in l as defined by f"
+  [f l]
+  (loop [seen #{}
+         result []
+         remaining l]
+    (cond (empty? remaining) result
+          (seen (f (first remaining))) (recur seen result (rest remaining))
+          :else (recur (conj seen (f (first remaining))) 
+                       (conj result (first remaining))
+                       (rest remaining)))))
+
+(defn distinct-algs [algs]
+  (distinct-by canonicalize algs))
+
+(defn- move-qtm-length [move]
+  (if (double-turn? move) 2 1))
+
+(defn qtm-length [alg]
+  (reduce + 0 (map move-qtm-length (moves alg))))
+
+(defn group-algs [alg-list]
+  (group-by qtm-length
+  (distinct-algs alg-list)))
