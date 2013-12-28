@@ -12,12 +12,10 @@
         (should= ["Rw2" "Uw'"] (moves "Rw2Uw'"))))
   (describe "expand"
     (it "turns wide turns into normal turns"
-        (should= ["R" "x" "x" "x"] (expand ["Lw"]))
-        )
+        (should= ["R" "x" "x" "x"] (expand ["Lw"])))
     (it "turns primes and 2's into singles"
         (should= ["R"] (expand ["R"]))
-        (should= ["R" "R"] (expand ["R2"]))
-    ))
+        (should= ["R" "R"] (expand ["R2"]))))
   (describe "derotate"
     (it "eliminates rotations"
         (should= ["R" "U"] (derotate ["R" "U"]))
