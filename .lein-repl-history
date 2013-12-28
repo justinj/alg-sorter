@@ -1,0 +1,93 @@
+(doc re-seq)
+(last "sdf")
+(last "R2")
+(re-match #"R" "R2")
+(re-find #"R" "R2")
+(re-find #"[RF]" "R2")
+(doc condp)
+(doc :>>)
+member
+some
+(doc some)
+(doc partition)
+(doc io!)
+(find-doc #"member")
+(not number?)
+number?
+(doc split-with)
+(split-with even? [1 1 1 2 3 3 3]
+)
+(split-with even? [2 2 2 3 3 3]
+)
+(doc split-at)
+exit
+(conj [1 2 3] [[1] [2] [3]])
+(#{"A" "B"} "A")
+(#{"A" "B"} "C")
+(doc reduce)
+(source reduce)
+exit
+(def l (range 0 10))
+l
+(doc find)
+(doc come)
+(doc some)
+(doc some-fn)
+l
+(reverse l)
+(partition even? (reverse l))
+(partition (reverse l) even?)
+(doc partition)
+(doc split-with)
+(split-with even? (reverse l))
+(doc split-at)
+(doc take-until)
+(doc take-while)
+(doc some)
+(find-doc #"last")
+(doc take-nth)
+(some odd? [2 2 2 2])
+(doc not-any?)
+l
+(def l [1 2 3 4 5 6 7 
+(def l [1 2 3 4 'a 5 6 7 8])
+l
+(def l [1 2 3 4 'a 5 6 7 'b 8])
+l
+'( '(1 2 3))
+quote
+man quote
+(doc quote)
+(doc doc)
+(doc ->)
+(doc find)
+(find-doc #"index")
+(doc some)
+(find-doc #"location")
+(find-doc #"pred")
+(doc inc'0
+(doc inc')
+(doc inc)
+(iterate 0 inc)
+(iterate inc 0)
+(take 1000 (iterate inc 0))
+(take 100000 (iterate inc 0))
+(take 1000000 (iterate inc 0))
+(take 10000000 (iterate inc 0))
+(doc find)
+(find 4 [4])
+(doc key)
+(keyword foo)
+(doc keyword)
+(find-doc #"first")
+(find-doc #"include")
+(some #{\w} "Rw")
+(some #{\w} "R")
+(uppercase)
+uppercase
+clojure.string/upper-case
+(clojure.string/upper-case \u)
+(doc case)
+(source map)
+(doc concat)
+(concat ["y" "y"] ["R"])
