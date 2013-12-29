@@ -140,6 +140,22 @@
 (defn qtm-length [alg]
   (reduce + 0 (map move-qtm-length (moves alg))))
 
-(defn group-algs [alg-list]
+(defmulti perform-fix (fn [_ operation] operation))
+
+(defmethod perform-fix :removepreauf
+  [lst _]
+  (map remove-pre-auf lst))
+
+(defn remove-pre-auf [alg]
+  (if (= (first alg) "U")
+    (rest alg)
+    alg))
+
+(defn fix-algs [lst options]
+  (reduce perform-fix lst options))
+
+(defn group-algs [alg-list options]
+  (let [fixed-algs (fix-algs (map moves alg-list) options)
+        algs (map #(clojure.string/join " " %) fixed-algs)]
   (group-by qtm-length
-  (distinct-algs alg-list)))
+            (distinct-algs algs))))
