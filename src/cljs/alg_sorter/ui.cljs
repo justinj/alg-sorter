@@ -26,8 +26,18 @@
 (defn to-id-selector [id]
   (keyword (str "#" id)))
 
+(defn remove-cubex-length
+  "output from cubex appends stuff like (13f*) which we want to ignore"
+  [algs]
+  (map #(clojure.string/replace % #"\(.*\)" "") algs))
+
+(defn sanitize [algs]
+  (-> algs
+      remove-cubex-length))
+
 (defn format-algs [algs opt]
-  (let [sorted (sort-by first (alg/group-algs algs opt))]
+  (let [sanitized (sanitize algs)
+        sorted (sort-by first (alg/group-algs sanitized opt))]
     [:.algs
      (map (fn [[length algs]]
             [:.group
