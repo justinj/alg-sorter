@@ -146,8 +146,12 @@
   [lst _]
   (map remove-pre-auf lst))
 
+(defmethod perform-fix :removepostauf
+  [lst _]
+  (map (comp reverse remove-pre-auf reverse) lst))
+
 (defn remove-pre-auf [alg]
-  (if (= (first alg) "U")
+  (if (= (first (first alg)) \U)
     (rest alg)
     alg))
 
