@@ -34,6 +34,7 @@
   (re-find face-re move))
 
 (defn- expand-move [move]
+  "turn move into a collection of clockwise turns"
   (let [p (prefix move)]
     (condp #(%1 %2) move
       prime?       [p p p]
@@ -100,9 +101,11 @@
   (let [result (f v)] (if (= result v) v (recur f result))))
 
 (defn derotate [move-seq]
+  "eliminate all the rotations in move-seq"
   (fixed-point derotate-one move-seq))
 
 (defn rerotate [alg]
+  "rotate alg so it starts with an 'R' move"
   (let [rotation (case (first alg)
                    "U" ["z" "z" "z"]
                    "D" ["z"]
@@ -113,6 +116,7 @@
     (derotate (concat rotation alg))))
 
 (defn canonicalize [alg]
+  "bring alg into a form in which it can be compared to other algs"
   (let [m (moves alg)]
     (-> m
         expand
