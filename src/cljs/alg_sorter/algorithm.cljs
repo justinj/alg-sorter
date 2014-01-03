@@ -154,16 +154,30 @@
   [lst _]
   (map (comp reverse remove-pre-auf reverse) lst))
 
+(defmulti perform-input-fix (fn [_ operation] operation))
+
+(defmethod perform-input-fix :removeblank
+  [lst _]
+  (remove clojure.string/blank? lst))
+
+(defmethod perform-input-fix :removesearchingdepth
+  [lst _]
+  (remove #(re-find #"Searching depth" (clojure.string/join %)) lst))
+
 (defn remove-pre-auf [alg]
   (if (= (first (first alg)) \U)
     (rest alg)
     alg))
 
+(defn fix-input [lst]
+  (reduce perform-input-fix lst #{:removesearchingdepth :removeblank}))
+
 (defn fix-algs [lst options]
   (reduce perform-fix lst options))
 
 (defn group-algs [alg-list options]
-  (let [fixed-algs (fix-algs (map moves alg-list) options)
+  (let [fixed-input (fix-input alg-list options)
+        fixed-algs (fix-algs (map moves fixed-input) options)
         algs (map #(clojure.string/join " " %) fixed-algs)]
   (group-by qtm-length
             (distinct-algs algs))))
