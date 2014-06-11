@@ -25,6 +25,6 @@
              :notify-command run-specs}
       :prod {:source-paths ["src/cljs"]
              :compiler {:output-to "public/javascript/cljs.js"
-                        :optimizations :simple}}}
+                        :optimizations :advanced}}}
                  :test-commands {"test" run-specs}}
                 ))

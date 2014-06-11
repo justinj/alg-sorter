@@ -96,9 +96,10 @@
       (concat start
               (apply-rotation end)))))
 
-(defn- fixed-point [f v]
+; tail recursion would be nice but it's sort of annoying with the varargs
+(defn- fixed-point [f v & args]
   "Repeatedly apply f to v until it has no effect"
-  (let [result (f v)] (if (= result v) v (recur f result))))
+  (let [result (apply f v args)] (if (= result v) v (apply fixed-point f result args))))
 
 (defn derotate [move-seq]
   "eliminate all the rotations in move-seq"
@@ -115,13 +116,38 @@
                    "B" ["y" "y" "y"])]
     (derotate (concat rotation alg))))
 
-(defn canonicalize [alg]
+(def should-commute?
+  #{["U" "D"] ["R" "L"] ["F" "B"]})
+
+(defn commute-moves [move-seq]
+  (fixed-point commute-once move-seq))
+
+(defn commute-once [move-seq]
+  (loop [result []
+         moves move-seq]
+    (if (empty? moves)
+      result
+      (if (should-commute? (take 2 moves))
+        (recur (concat result (reverse (take 2 moves)))
+               (drop 2 moves))
+        (recur (concat result [(first moves)])
+               (rest moves))))))
+
+(defn move-ds-to-end [move-seq]
+  (if (= "D" (first move-seq))
+    (concat (rest move-seq) ["D"])
+    move-seq))
+
+(defn canonicalize [alg options]
   "bring alg into a form in which it can be compared to other algs"
-  (let [m (moves alg)]
-    (-> m
-        expand
-        derotate
-        rerotate)))
+  (let [m (moves alg)
+        rotated (-> m
+                    expand
+                    derotate
+                    rerotate)]
+    (if (options :commutemoves)
+      (commute-moves rotated)
+      rotated)))
 
 (defn distinct-by
   "Return the first of each equivalence class in l as defined by f"
@@ -135,8 +161,8 @@
                        (conj result (first remaining))
                        (rest remaining)))))
 
-(defn distinct-algs [algs]
-  (distinct-by canonicalize algs))
+(defn distinct-algs [algs options]
+  (distinct-by #(canonicalize % options) algs))
 
 (defn- move-qtm-length [move]
   (if (double-turn? move) 2 1))
@@ -153,6 +179,14 @@
 (defmethod perform-fix :removepostauf
   [lst _]
   (map (comp reverse remove-pre-auf reverse) lst))
+
+(defmethod perform-fix :commutemoves
+  [lst _]
+  (map commute-moves lst))
+
+(defmethod perform-fix :movedstoend
+  [lst _]
+  (map #(fixed-point move-ds-to-end %) lst))
 
 (defmulti perform-input-fix (fn [_ operation] operation))
 
@@ -177,7 +211,7 @@
 
 (defn group-algs [alg-list options]
   (let [fixed-input (fix-input alg-list options)
-        fixed-algs (fix-algs (map moves fixed-input) options)
+        fixed-algs (fixed-point fix-algs (map moves fixed-input) options)
         algs (map #(clojure.string/join " " %) fixed-algs)]
   (group-by qtm-length
-            (distinct-algs algs))))
+            (distinct-algs algs options))))

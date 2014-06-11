@@ -17,7 +17,7 @@
   (.-checked elem))
 
 (defn options []
-  (let [opts ["removepreauf" "removepostauf"]]
+  (let [opts ["removepreauf" "removepostauf" "movedstoend" "commutemoves"]]
     (set
       (for [opt opts
             :when (checked? (sel1 (to-id-selector opt)))]
