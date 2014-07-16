@@ -46,6 +46,19 @@
           (mapcat expand-move
                   alg)))
 
+(defn collapse-same-move [move-seq]
+  (prn (mod (count move-seq) 4))
+  (condp #(= %1 %2) (mod (count move-seq) 4)
+    0 ""
+    1 (first move-seq)
+    2 (str (first move-seq) "2")
+    3 (str (first move-seq) "'")))
+
+(defn collapse [alg]
+  (filter #(not (= "" %))
+   (map collapse-same-move
+        (partition-by identity alg))))
+
 (def rotation-results
   {"x"
     {"U" "F"
@@ -144,10 +157,13 @@
         rotated (-> m
                     expand
                     derotate
+                    commute-moves
                     rerotate)]
-    (if (options :commutemoves)
-      (commute-moves rotated)
-      rotated)))
+    ; (if (options :commutemoves)
+    ;   (commute-moves rotated)
+    ;   rotated)
+    rotated
+    ))
 
 (defn distinct-by
   "Return the first of each equivalence class in l as defined by f"
@@ -207,7 +223,9 @@
   (reduce perform-input-fix lst #{:removesearchingdepth :removeblank}))
 
 (defn fix-algs [lst options]
-  (reduce perform-fix lst options))
+  (let [expanded-algs (map expand lst)]
+    (map collapse
+      (reduce perform-fix expanded-algs options))))
 
 (defn group-algs [alg-list options]
   (let [fixed-input (fix-input alg-list options)
